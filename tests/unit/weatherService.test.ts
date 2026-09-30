@@ -47,6 +47,7 @@ describe('searchCities', () => {
     ]);
     expect(fetchMock).toHaveBeenCalledWith(
       'https://geocoding-api.open-meteo.com/v1/search?name=S%C3%A3o%20Paulo&count=10&language=pt&format=json',
+      { signal: expect.any(AbortSignal) },
     );
   });
 
@@ -69,6 +70,43 @@ describe('searchCities', () => {
     fetchMock.mockResolvedValue(new Response(null, { status: 503 }));
 
     await expect(searchCities('Recife')).rejects.toBeInstanceOf(WeatherServiceError);
+  });
+
+  it('converts network failures to WeatherServiceError', async () => {
+    fetchMock.mockRejectedValue(new TypeError('Failed to fetch'));
+
+    await expect(searchCities('Recife')).rejects.toEqual(
+      expect.objectContaining({
+        name: 'WeatherServiceError',
+        message: 'Falha de rede.',
+      }),
+    );
+  });
+
+  it('aborts after ten seconds and clears the timeout', async () => {
+    vi.useFakeTimers();
+    const clearTimeoutSpy = vi.spyOn(globalThis, 'clearTimeout');
+    fetchMock.mockImplementation(
+      (_input, init) =>
+        new Promise((_resolve, reject) => {
+          init?.signal?.addEventListener('abort', () => {
+            reject(new DOMException('Aborted', 'AbortError'));
+          });
+        }),
+    );
+
+    const requestExpectation = expect(searchCities('Recife')).rejects.toEqual(
+      expect.objectContaining({
+        name: 'WeatherServiceError',
+        message: 'A requisição demorou demais.',
+      }),
+    );
+    await vi.advanceTimersByTimeAsync(10_000);
+
+    await requestExpectation;
+    expect(clearTimeoutSpy).toHaveBeenCalledOnce();
+    clearTimeoutSpy.mockRestore();
+    vi.useRealTimers();
   });
 });
 
@@ -102,6 +140,7 @@ describe('getWeather', () => {
 
     expect(fetchMock).toHaveBeenCalledWith(
       'https://api.open-meteo.com/v1/forecast?latitude=-8.05&longitude=-34.88&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&temperature_unit=celsius&forecast_days=5',
+      { signal: expect.any(AbortSignal) },
     );
     expect(weather).toEqual({
       city,
