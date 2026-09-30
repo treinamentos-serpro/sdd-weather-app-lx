@@ -6,26 +6,12 @@ import EmptyState from './components/states/EmptyState';
 import ErrorState from './components/states/ErrorState';
 import LoadingState from './components/states/LoadingState';
 import UnitToggle from './components/UnitToggle';
-import { mockWeatherData } from './mocks/weather';
-import type { RequestState, Unit, WeatherData } from './types/weather';
+import { useWeather } from './hooks/useWeather';
+import type { Unit } from './types/weather';
 
-interface AppProps {
-  initialState?: RequestState<WeatherData>;
-}
-
-export default function App({ initialState }: AppProps) {
-  const [weather, setWeather] = useState<RequestState<WeatherData>>(
-    initialState ?? { status: 'success', data: mockWeatherData },
-  );
+export default function App() {
+  const { status, data, error, search, retry } = useWeather();
   const [unit, setUnit] = useState<Unit>('celsius');
-
-  const handleSearch = (city: string) => {
-    setWeather(
-      city.localeCompare(mockWeatherData.city.name, 'pt-BR', { sensitivity: 'base' }) === 0
-        ? { status: 'success', data: mockWeatherData }
-        : { status: 'empty' },
-    );
-  };
 
   return (
     <div className="min-h-screen bg-night-900 text-white">
@@ -35,21 +21,21 @@ export default function App({ initialState }: AppProps) {
             <h1 className="text-2xl font-bold text-sun">Clima</h1>
             <UnitToggle unit={unit} onChange={setUnit} />
           </div>
-          <SearchBar onSearch={handleSearch} />
+          <SearchBar onSearch={search} disabled={status === 'loading'} />
         </header>
 
         <main className="space-y-8 py-6">
-          {weather.status === 'idle' && <p>Consulte o clima da sua cidade.</p>}
-          {weather.status === 'loading' && <LoadingState />}
-          {weather.status === 'empty' && <EmptyState />}
-          {weather.status === 'error' && <ErrorState onRetry={weather.retry} />}
-          {weather.status === 'success' && (
+          {status === 'idle' && <p>Consulte o clima da sua cidade.</p>}
+          {status === 'loading' && <LoadingState />}
+          {status === 'empty' && <EmptyState />}
+          {status === 'error' && <ErrorState onRetry={retry} message={error ?? undefined} />}
+          {status === 'success' && data && (
             <>
-              <CurrentWeather city={weather.data.city} current={weather.data.current} unit={unit} />
+              <CurrentWeather city={data.city} current={data.current} unit={unit} />
               <ForecastList
-                days={weather.data.forecastDays}
+                days={data.forecastDays}
                 unit={unit}
-                incompleteDaily={weather.data.incompleteDaily}
+                incompleteDaily={data.incompleteDaily}
               />
             </>
           )}
