@@ -34,6 +34,26 @@ describe('App com dados de exemplo', () => {
     expect(screen.getByText('Máx 25°C / Mín 16°C')).toBeInTheDocument();
   });
 
+  it('permite alternar a unidade e buscar uma cidade pelo teclado', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+
+    await user.tab();
+    expect(screen.getByRole('button', { name: '°C' })).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole('button', { name: '°F' })).toHaveFocus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByText('69°F')).toBeInTheDocument();
+
+    await user.tab();
+    expect(screen.getByRole('textbox', { name: 'Nome da cidade' })).toHaveFocus();
+    await user.type(screen.getByRole('textbox', { name: 'Nome da cidade' }), 'Outra cidade');
+    await user.tab();
+    expect(screen.getByRole('button', { name: 'Buscar' })).toHaveFocus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('status')).toHaveTextContent('Nenhuma cidade encontrada');
+  });
+
   it('retira o resultado anterior quando a busca não encontra a cidade no mock', async () => {
     const user = userEvent.setup();
     render(<App />);

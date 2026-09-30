@@ -13,7 +13,7 @@ export default function ErrorState({
       <button
         type="button"
         onClick={onRetry}
-        className="rounded-lg bg-accent-500 px-4 py-2 font-medium text-white transition hover:bg-accent-400 focus:outline-none focus:ring-2 focus:ring-accent-400"
+        className="rounded-lg bg-accent-400 px-4 py-2 font-medium text-night-900 transition hover:bg-accent-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-night-900"
       >
         Tentar novamente
       </button>

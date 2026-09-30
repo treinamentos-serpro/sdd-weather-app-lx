@@ -18,7 +18,7 @@ export default function ForecastCard({ day, unit }: ForecastCardProps) {
       <span aria-hidden="true" className="my-2 block text-3xl">
         {condition.icon}
       </span>
-      <p className="text-sm text-white/80">{condition.description}</p>
+      <p className="break-words text-sm text-white/80">{condition.description}</p>
       <p className="mt-2 font-semibold">
         Máx {formatTemperature(day.maximumCelsius, unit)}
         {unitSymbol(unit)} / Mín {formatTemperature(day.minimumCelsius, unit)}

@@ -26,8 +26,8 @@ export default function UnitToggle({ unit, onChange }: UnitToggleProps) {
             type="button"
             aria-pressed={isActive}
             onClick={() => onChange(option.value)}
-            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-accent-400 ${
-              isActive ? 'bg-accent-500 text-white' : 'text-white/70 hover:bg-white/10'
+            className={`rounded-lg px-3 py-1.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-night-900 ${
+              isActive ? 'bg-accent-400 text-night-900' : 'text-white/80 hover:bg-white/10'
             }`}
           >
             {option.label}
