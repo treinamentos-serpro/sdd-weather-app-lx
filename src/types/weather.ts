@@ -21,6 +21,7 @@ export interface ForecastDay {
   weatherCode: number; // Código WMO da condição diária.
   minimumCelsius: number; // Mínima do dia em °C.
   maximumCelsius: number; // Máxima do dia em °C.
+  precipitationProbability?: number; // Probabilidade de chuva em %, quando disponível.
 }
 
 export interface WeatherData {
