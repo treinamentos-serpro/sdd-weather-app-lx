@@ -75,4 +75,12 @@ describe('ForecastList', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Previsão diária indisponível');
     expect(screen.queryByRole('list')).not.toBeInTheDocument();
   });
+
+  it('does not present a forecast with date gaps as complete', () => {
+    const daysWithGap = [days[0], days[2], days[3], days[4]];
+    render(<ForecastList days={daysWithGap} unit="celsius" />);
+
+    expect(screen.getAllByRole('listitem')).toHaveLength(4);
+    expect(screen.getByRole('status')).toHaveTextContent('Previsão incompleta');
+  });
 });

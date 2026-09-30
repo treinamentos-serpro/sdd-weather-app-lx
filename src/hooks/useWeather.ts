@@ -19,7 +19,7 @@ export interface UseWeatherResult {
 
 function getErrorMessage(error: unknown): string {
   if (error instanceof WeatherServiceError && error.message) {
-    return error.message;
+    return `Não foi possível concluir a consulta. ${error.message}`;
   }
 
   return 'Não foi possível concluir a consulta. Verifique sua conexão e tente novamente.';

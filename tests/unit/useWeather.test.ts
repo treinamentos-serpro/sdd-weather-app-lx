@@ -84,7 +84,10 @@ describe('useWeather', () => {
     await act(async () => {
       await result.current.selectCity(city);
     });
-    expect(result.current).toMatchObject({ status: 'error', error: 'Falha de rede.' });
+    expect(result.current).toMatchObject({
+      status: 'error',
+      error: 'Não foi possível concluir a consulta. Falha de rede.',
+    });
 
     await act(async () => {
       await result.current.retry();

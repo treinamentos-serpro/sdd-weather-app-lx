@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import CityResults from './components/CityResults';
 import CurrentWeather from './components/CurrentWeather';
 import CursorSparkle from './components/CursorSparkle';
 import ForecastList from './components/ForecastList';
@@ -12,7 +13,7 @@ import { useWeather } from './hooks/useWeather';
 import type { Unit } from './types/weather';
 
 export default function App() {
-  const { status, data, error, search, retry } = useWeather();
+  const { status, data, error, cities, search, selectCity, retry } = useWeather();
   const [unit, setUnit] = useState<Unit>('celsius');
   const [theme, setTheme] = useState<Theme>('light');
   const mainRef = useRef<HTMLElement>(null);
@@ -54,6 +55,7 @@ export default function App() {
           {status === 'loading' && <LoadingState />}
           {status === 'empty' && <EmptyState />}
           {status === 'error' && <ErrorState onRetry={retry} message={error ?? undefined} />}
+          {cities.length > 0 && <CityResults cities={cities} onSelect={selectCity} />}
           {status === 'success' && data && (
             <>
               <CurrentWeather city={data.city} current={data.current} unit={unit} />

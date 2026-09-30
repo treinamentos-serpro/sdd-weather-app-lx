@@ -103,7 +103,7 @@ describe('App', () => {
     useWeatherMock.mockReturnValue(weatherState({ status: 'success', data: mockWeatherData }));
     render(<App />);
 
-    expect(screen.getByText('Clima carregado para Recife.')).toBeInTheDocument();
+    expect(screen.getByText('Clima carregado para São Paulo.')).toBeInTheDocument();
     expect(screen.getByRole('main')).toHaveFocus();
     expect(screen.getByRole('main')).toHaveAttribute('aria-busy', 'false');
   });

@@ -1,6 +1,12 @@
 import type { ForecastDay, Unit } from '../types/weather';
 import ForecastCard from './ForecastCard';
 
+function addDays(date: string, days: number): string {
+  const value = new Date(`${date}T00:00:00Z`);
+  value.setUTCDate(value.getUTCDate() + days);
+  return value.toISOString().slice(0, 10);
+}
+
 interface ForecastListProps {
   days: ForecastDay[];
   unit: Unit;
@@ -8,7 +14,7 @@ interface ForecastListProps {
 }
 
 export default function ForecastList({ days, unit, incompleteDaily = false }: ForecastListProps) {
-  const validDays = days
+  const sortedDays = days
     .filter((day) => {
       const date = new Date(`${day.date}T00:00:00Z`);
       return (
@@ -24,6 +30,11 @@ export default function ForecastList({ days, unit, incompleteDaily = false }: Fo
       (day, index, allDays) => allDays.findIndex((other) => other.date === day.date) === index,
     )
     .sort((first, second) => first.date.localeCompare(second.date));
+  const validDays = sortedDays;
+  const hasDateGap = sortedDays.some(
+    (day, index) => index > 0 && day.date !== addDays(sortedDays[index - 1].date, 1),
+  );
+  const hasIncompleteForecast = incompleteDaily || validDays.length < 5 || hasDateGap;
 
   return (
     <section aria-label="Previsão de 5 dias" className="text-primary">
@@ -39,7 +50,7 @@ export default function ForecastList({ days, unit, incompleteDaily = false }: Fo
           Previsão diária indisponível no momento.
         </p>
       )}
-      {validDays.length > 0 && (incompleteDaily || validDays.length < 5) && (
+      {validDays.length > 0 && hasIncompleteForecast && (
         <p role="status" className="mt-3 text-sm text-muted">
           Previsão incompleta: alguns dias estão indisponíveis.
         </p>

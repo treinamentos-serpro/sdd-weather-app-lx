@@ -145,6 +145,40 @@ test('preserva caracteres especiais no nome enviado ao geocoding', async ({ page
   expect(requestedName).toBe("São José d'Água");
 });
 
+test('distingue cidades homônimas e consulta as coordenadas selecionadas', async ({ page }) => {
+  const otherCity = {
+    ...city,
+    id: 123,
+    latitude: -8.05,
+    longitude: -34.88,
+  };
+  const forecastUrls: string[] = [];
+
+  await page.route('**://geocoding-api.open-meteo.com/**', async (route) => {
+    await route.fulfill({ json: { results: [city, otherCity] } });
+  });
+  await page.route('**://api.open-meteo.com/**', async (route) => {
+    forecastUrls.push(route.request().url());
+    await route.fulfill({ json: forecast });
+  });
+
+  await page.goto('/');
+  await page.getByRole('textbox', { name: 'Nome da cidade' }).fill('São Paulo');
+  await page.getByRole('button', { name: 'Buscar' }).click();
+
+  const cityResults = page.getByRole('region', { name: 'Resultados de cidades' });
+  await expect(cityResults.getByRole('button')).toHaveCount(2);
+  await expect(cityResults).toContainText('Coordenadas: -23.5500, -46.6400');
+  await expect(cityResults).toContainText('Coordenadas: -8.0500, -34.8800');
+
+  await cityResults.getByRole('button', { name: /Coordenadas: -8\.0500, -34\.8800/ }).click();
+
+  await expect.poll(() => forecastUrls.length).toBe(2);
+  const selectedForecastUrl = new URL(forecastUrls[1]);
+  expect(selectedForecastUrl.searchParams.get('latitude')).toBe('-8.05');
+  expect(selectedForecastUrl.searchParams.get('longitude')).toBe('-34.88');
+});
+
 test('mostra estado vazio quando o geocoding não encontra cidades', async ({ page }) => {
   let forecastRequests = 0;
   await page.route('**://geocoding-api.open-meteo.com/**', async (route) => {
