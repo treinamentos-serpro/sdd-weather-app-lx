@@ -51,10 +51,7 @@ describe('App', () => {
 
     await user.click(screen.getByRole('button', { name: 'Escuro' }));
     expect(container.firstElementChild).toHaveAttribute('data-theme', 'dark');
-    expect(screen.getByRole('button', { name: 'Escuro' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
+    expect(screen.getByRole('button', { name: 'Escuro' })).toHaveAttribute('aria-pressed', 'true');
 
     await user.click(screen.getByRole('button', { name: 'Claro' }));
     expect(container.firstElementChild).toHaveAttribute('data-theme', 'light');
@@ -85,7 +82,7 @@ describe('App', () => {
 
     expect(screen.getByRole('status')).toHaveTextContent('Nenhuma cidade encontrada');
     expect(screen.queryByRole('region', { name: 'Clima atual' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('region', { name: 'Previsão diária' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Previsão de 5 dias' })).not.toBeInTheDocument();
   });
 
   it('mostra o erro do hook e aciona retry', async () => {
@@ -106,7 +103,7 @@ describe('App', () => {
       within(screen.getByRole('region', { name: 'Clima atual' })).getByText('20°C'),
     ).toBeInTheDocument();
     expect(
-      within(screen.getByRole('region', { name: 'Previsão diária' })).getAllByRole('listitem'),
+      within(screen.getByRole('region', { name: 'Previsão de 5 dias' })).getAllByRole('listitem'),
     ).toHaveLength(5);
 
     await user.click(screen.getByRole('button', { name: '°F' }));

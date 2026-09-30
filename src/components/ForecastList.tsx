@@ -26,8 +26,8 @@ export default function ForecastList({ days, unit, incompleteDaily = false }: Fo
     .sort((first, second) => first.date.localeCompare(second.date));
 
   return (
-    <section aria-label="Previsão diária" className="text-primary">
-      <h2 className="mb-3 text-lg font-semibold">Previsão diária</h2>
+    <section aria-label="Previsão de 5 dias" className="text-primary">
+      <h2 className="mb-3 text-lg font-semibold">Previsão de 5 dias</h2>
       {validDays.length > 0 ? (
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {validDays.map((day) => (
