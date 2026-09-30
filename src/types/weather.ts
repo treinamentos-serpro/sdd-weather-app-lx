@@ -1,47 +1,41 @@
-/**
- * Contratos de domínio compartilhados do Weather App.
- *
- * Decisão de arquitetura: as temperaturas são sempre armazenadas em Celsius
- * internamente e convertidas apenas na camada de apresentação. Assim, a troca
- * de unidade (C/F) nunca dispara um novo request.
- */
-
 export type Unit = 'celsius' | 'fahrenheit';
 
-/** Resultado da API de geocoding (uma cidade). */
 export interface City {
-  id: number;
-  name: string;
-  country: string;
-  /** Estado/região, quando disponível (ajuda a desambiguar homônimos). */
-  admin1?: string;
-  latitude: number;
-  longitude: number;
+  id?: number; // Identificador do resultado de geocoding, quando disponível.
+  name: string; // Nome da cidade.
+  admin1?: string; // Estado ou região, quando disponível.
+  country: string; // País da cidade.
+  latitude: number; // Latitude usada na consulta meteorológica.
+  longitude: number; // Longitude usada na consulta meteorológica.
+  timezone?: string; // Fuso informado pelo geocoding, quando disponível.
 }
 
-/** Condições atuais. Temperatura sempre em °C. */
 export interface CurrentWeather {
-  temperature: number;
-  weatherCode: number;
-  humidity: number;
-  windSpeed: number;
-  pressure: number;
-  precipitation: number;
-  time: string;
+  time: string; // Horário local da medição, retornado pela API.
+  temperatureCelsius: number; // Temperatura atual em °C.
+  weatherCode: number; // Código WMO da condição atual.
 }
 
-/** Um dia da previsão. Temperaturas sempre em °C. */
 export interface ForecastDay {
-  date: string;
-  min: number;
-  max: number;
-  weatherCode: number;
-  precipitationProbability: number;
+  date: string; // Data local YYYY-MM-DD retornada pela API.
+  weatherCode: number; // Código WMO da condição diária.
+  minimumCelsius: number; // Mínima do dia em °C.
+  maximumCelsius: number; // Máxima do dia em °C.
 }
 
-/** Agregado entregue à UI: cidade + clima atual + 5 dias de previsão. */
 export interface WeatherData {
-  city: City;
-  current: CurrentWeather;
-  forecast: ForecastDay[];
+  city: City; // Cidade selecionada no geocoding.
+  timezone: string; // Fuso retornado pela Forecast API para as datas locais.
+  current?: CurrentWeather; // Clima atual validado; ausente se indisponível.
+  forecastDays: ForecastDay[]; // Dias completos entre hoje e os quatro seguintes.
+  unavailable: Array<'current' | 'daily'>; // Seções indisponíveis para aviso na UI.
+  incompleteDaily: boolean; // Indica falta de um ou mais dos cinco dias.
 }
+
+export type RequestState<T> =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: T }
+  | { status: 'empty' }
+  | { status: 'error'; retry: () => void };
+''''''''''''''''''
