@@ -38,4 +38,3 @@ export type RequestState<T> =
   | { status: 'success'; data: T }
   | { status: 'empty' }
   | { status: 'error'; retry: () => void };
-''''''''''''''''''
