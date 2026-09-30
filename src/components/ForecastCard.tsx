@@ -13,18 +13,18 @@ export default function ForecastCard({ day, unit }: ForecastCardProps) {
   const probability = day.precipitationProbability;
 
   return (
-    <li className="min-w-0 rounded-lg border border-white/10 bg-white/5 p-4 text-center text-white backdrop-blur-md">
+    <li className="min-w-0 rounded-lg border border-line/50 bg-panel/75 p-4 text-center text-primary shadow-sm backdrop-blur-md">
       <h3 className="text-sm font-semibold capitalize">{formatDayLabel(day.date)}</h3>
       <span aria-hidden="true" className="my-2 block text-3xl">
         {condition.icon}
       </span>
-      <p className="break-words text-sm text-white/80">{condition.description}</p>
+      <p className="break-words text-sm text-muted">{condition.description}</p>
       <p className="mt-2 font-semibold">
         Máx {formatTemperature(day.maximumCelsius, unit)}
         {unitSymbol(unit)} / Mín {formatTemperature(day.minimumCelsius, unit)}
         {unitSymbol(unit)}
       </p>
-      <p className="mt-2 text-sm text-white/80">
+      <p className="mt-2 text-sm text-muted">
         {probability !== undefined &&
         Number.isFinite(probability) &&
         probability >= 0 &&

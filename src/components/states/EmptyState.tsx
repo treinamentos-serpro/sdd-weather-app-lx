@@ -8,9 +8,9 @@ export default function EmptyState({
   hint = 'Tente buscar por outro nome de cidade.',
 }: EmptyStateProps) {
   return (
-    <div role="status" className="py-4 text-white">
+    <div role="status" className="py-4 text-primary">
       <h2 className="font-semibold">{title}</h2>
-      <p className="mt-1 text-sm text-white/80">{hint}</p>
+      <p className="mt-1 text-sm text-muted">{hint}</p>
     </div>
   );
 }

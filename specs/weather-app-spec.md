@@ -48,6 +48,10 @@ selecionada são enviados a esse serviço.
 - **FR7 — Tentar novamente:** oferecer nova tentativa para falha de geocoding e
   de previsão. Preservar, respectivamente, o nome normalizado pesquisado ou a
   identidade geográfica selecionada.
+- **FR8 — Personalizar aparência:** iniciar com tema claro e permitir escolher
+  entre tema claro e escuro. Em dispositivos com ponteiro preciso, exibir um
+  brilho decorativo que acompanha o ponteiro sem bloquear interações; respeitar
+  a preferência de redução de movimento.
 
 ## User Stories
 
@@ -158,6 +162,18 @@ selecionada são enviados a esse serviço.
   - **Given** que uma nova tentativa foi iniciada;
   - **When** ela termina com sucesso;
   - **Then** são exibidos dados válidos da consulta repetida e o estado de erro é removido.
+- **AC8.1 (FR8):**
+  - **Given** que a aplicação foi aberta;
+  - **When** nenhum tema foi selecionado;
+  - **Then** o tema claro está ativo e o controle expõe essa seleção.
+- **AC8.2 (FR8):**
+  - **Given** que o controle de tema está disponível;
+  - **When** a pessoa seleciona claro ou escuro;
+  - **Then** fundo, textos, cartões, campos e controles adotam o tema escolhido com contraste legível.
+- **AC8.3 (FR8):**
+  - **Given** um dispositivo com ponteiro preciso e sem redução de movimento;
+  - **When** o ponteiro se move sobre a aplicação;
+  - **Then** um brilho decorativo acompanha sua posição sem capturar eventos ou alterar o layout.
 
 ## Non-Functional Requirements
 

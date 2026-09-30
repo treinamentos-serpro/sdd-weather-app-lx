@@ -26,7 +26,7 @@ export default function ForecastList({ days, unit, incompleteDaily = false }: Fo
     .sort((first, second) => first.date.localeCompare(second.date));
 
   return (
-    <section aria-label="Previsão diária" className="text-white">
+    <section aria-label="Previsão diária" className="text-primary">
       <h2 className="mb-3 text-lg font-semibold">Previsão diária</h2>
       {validDays.length > 0 ? (
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
@@ -35,12 +35,12 @@ export default function ForecastList({ days, unit, incompleteDaily = false }: Fo
           ))}
         </ul>
       ) : (
-        <p role="status" className="text-white/80">
+        <p role="status" className="text-muted">
           Previsão diária indisponível no momento.
         </p>
       )}
       {validDays.length > 0 && (incompleteDaily || validDays.length < 5) && (
-        <p role="status" className="mt-3 text-sm text-white/80">
+        <p role="status" className="mt-3 text-sm text-muted">
           Previsão incompleta: alguns dias estão indisponíveis.
         </p>
       )}

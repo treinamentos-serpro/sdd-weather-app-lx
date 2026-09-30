@@ -37,6 +37,7 @@ Prioridade indica sequência, não remoção de escopo: **P0** forma a primeira 
 | T-26 | P1 | M |
 | T-27 | P1 | G |
 | T-28 | P2 | G |
+| T-29 | P1 | M |
 
 ## Sequência de fatias verticais
 
@@ -44,6 +45,21 @@ Prioridade indica sequência, não remoção de escopo: **P0** forma a primeira 
 2. **Previsão e unidade:** implementar T-11 e T-12 e então T-14, que integra previsão de cinco dias, alternância °C/°F e responsividade na mesma tela.
 3. **Confiança por fluxo:** executar T-15–T-26, agrupando os testes junto às áreas correspondentes: funções puras, services com mocks, hook e componentes/estados.
 4. **Validação de ponta a ponta e hardening:** executar T-27 para o caminho principal em desktop/mobile e os cenários de erro; finalizar com T-28 e os gates/auditorias antes da entrega.
+
+## Entrega 9 — Aparência
+
+### T-29 — Adicionar temas e brilho do ponteiro
+
+- **Descrição:** permitir alternar entre temas claro e escuro e adicionar brilho decorativo que acompanha ponteiros precisos.
+- **Critérios de aceite:**
+  - Tema claro é o padrão e o controle acessível expõe qual tema está ativo.
+  - Fundo, textos, cartões, campos e controles mantêm contraste nos dois temas.
+  - O brilho acompanha o ponteiro sem bloquear interação ou alterar layout e respeita toque e redução de movimento.
+  - Testes verificam tema padrão e alternância; `pnpm lint`, `pnpm build` e `pnpm test` passam.
+- **Dependências:** T-14.
+- **Arquivos prováveis:** `src/App.tsx`, `src/index.css`, `src/components/ThemeToggle.tsx`, `src/components/CursorSparkle.tsx`.
+- **Rastreabilidade:** FR8; AC8.1–AC8.3; NFR1–NFR4.
+- **Tipo:** UI
 
 ## Entrega 1 — Tipos e funções puras
 

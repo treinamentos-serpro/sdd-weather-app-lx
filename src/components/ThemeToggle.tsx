@@ -1,24 +1,24 @@
-import type { Unit } from '../types/weather';
+export type Theme = 'light' | 'dark';
 
-interface UnitToggleProps {
-  unit: Unit;
-  onChange: (unit: Unit) => void;
+interface ThemeToggleProps {
+  theme: Theme;
+  onChange: (theme: Theme) => void;
 }
 
-const OPTIONS: Array<{ value: Unit; label: string }> = [
-  { value: 'celsius', label: '°C' },
-  { value: 'fahrenheit', label: '°F' },
+const OPTIONS: Array<{ value: Theme; label: string }> = [
+  { value: 'light', label: 'Claro' },
+  { value: 'dark', label: 'Escuro' },
 ];
 
-export default function UnitToggle({ unit, onChange }: UnitToggleProps) {
+export default function ThemeToggle({ theme, onChange }: ThemeToggleProps) {
   return (
     <div
       role="group"
-      aria-label="Unidade de temperatura"
+      aria-label="Tema da interface"
       className="inline-flex gap-1 rounded-lg border border-line/60 bg-panel/70 p-1 backdrop-blur-md"
     >
       {OPTIONS.map((option) => {
-        const isActive = option.value === unit;
+        const isActive = option.value === theme;
 
         return (
           <button

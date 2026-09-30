@@ -14,9 +14,9 @@ export default function CurrentWeather({ city, current, unit }: CurrentWeatherPr
   return (
     <section
       aria-label="Clima atual"
-      className="flex min-w-0 flex-col items-center gap-2 rounded-lg border border-white/10 bg-white/5 p-6 text-center text-white backdrop-blur-md sm:items-start sm:text-left"
+      className="flex min-w-0 flex-col items-center gap-2 rounded-lg border border-line/50 bg-panel/75 p-6 text-center text-primary shadow-sm backdrop-blur-md sm:items-start sm:text-left"
     >
-      <h2 className="max-w-full break-words text-sm font-medium text-white/70">
+      <h2 className="max-w-full break-words text-sm font-medium text-muted">
         Clima atual em {location}
       </h2>
 
@@ -26,15 +26,15 @@ export default function CurrentWeather({ city, current, unit }: CurrentWeatherPr
             {getWeatherCodeInfo(current.weatherCode).icon}
           </span>
           <div className="min-w-0 break-words">
-            <p className="text-5xl font-bold text-sun sm:text-6xl">
+            <p className="text-5xl font-bold text-highlight sm:text-6xl">
               {formatTemperature(current.temperatureCelsius, unit)}
               {unitSymbol(unit)}
             </p>
-            <p className="text-white/80">{getWeatherCodeInfo(current.weatherCode).description}</p>
+            <p className="text-muted">{getWeatherCodeInfo(current.weatherCode).description}</p>
           </div>
         </div>
       ) : (
-        <p role="status" className="text-white/70">
+        <p role="status" className="text-muted">
           Clima atual indisponível no momento.
         </p>
       )}

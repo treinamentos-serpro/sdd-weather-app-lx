@@ -34,13 +34,30 @@ beforeEach(() => {
 });
 
 describe('App', () => {
-  it('apresenta busca, unidade e orientação no estado inicial', () => {
-    render(<App />);
+  it('apresenta tema claro, busca, unidade e orientação no estado inicial', () => {
+    const { container } = render(<App />);
 
+    expect(container.firstElementChild).toHaveAttribute('data-theme', 'light');
+    expect(screen.getByRole('button', { name: 'Claro' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('heading', { name: 'Clima' })).toBeInTheDocument();
     expect(screen.getByRole('search', { name: 'Buscar cidade' })).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'Unidade de temperatura' })).toBeInTheDocument();
     expect(screen.getByText('Consulte o clima da sua cidade.')).toBeInTheDocument();
+  });
+
+  it('permite alternar entre os temas claro e escuro', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<App />);
+
+    await user.click(screen.getByRole('button', { name: 'Escuro' }));
+    expect(container.firstElementChild).toHaveAttribute('data-theme', 'dark');
+    expect(screen.getByRole('button', { name: 'Escuro' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Claro' }));
+    expect(container.firstElementChild).toHaveAttribute('data-theme', 'light');
   });
 
   it('envia a busca ao hook pelo teclado', async () => {

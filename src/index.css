@@ -2,6 +2,70 @@
 @tailwind components;
 @tailwind utilities;
 
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+  --color-app: 239 246 248;
+  --color-panel: 255 255 255;
+  --color-field: 248 250 252;
+  --color-text: 15 35 42;
+  --color-muted: 71 85 105;
+  --color-border: 148 163 184;
+  --color-action: 8 116 137;
+  --color-action-hover: 14 137 158;
+  --color-action-contrast: 255 255 255;
+  --color-highlight: 180 83 9;
+  --color-focus: 8 116 137;
+  --sparkle-core: rgba(14, 137, 158, 0.2);
+  --sparkle-dot: rgba(180, 83, 9, 0.65);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --color-app: 11 16 32;
+  --color-panel: 26 33 56;
+  --color-field: 17 22 42;
+  --color-text: 248 250 252;
+  --color-muted: 203 213 225;
+  --color-border: 100 116 139;
+  --color-action: 139 155 255;
+  --color-action-hover: 109 124 255;
+  --color-action-contrast: 11 16 32;
+  --color-highlight: 245 185 66;
+  --color-focus: 255 255 255;
+  --sparkle-core: rgba(139, 155, 255, 0.24);
+  --sparkle-dot: rgba(245, 185, 66, 0.85);
+}
+
 body {
   margin: 0;
+  background: rgb(var(--color-app));
+}
+
+.cursor-sparkle {
+  position: fixed;
+  top: var(--pointer-y, -200px);
+  left: var(--pointer-x, -200px);
+  z-index: 0;
+  width: 11rem;
+  height: 11rem;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  background:
+    radial-gradient(circle at 30% 35%, var(--sparkle-dot) 0 1.5px, transparent 2px),
+    radial-gradient(circle at 68% 28%, var(--sparkle-dot) 0 1px, transparent 2px),
+    radial-gradient(circle at 62% 70%, var(--sparkle-dot) 0 1.5px, transparent 2.5px),
+    radial-gradient(circle, var(--sparkle-core) 0, transparent 68%);
+  transition: opacity 180ms ease;
+}
+
+.cursor-sparkle[data-visible="true"] {
+  opacity: 1;
+}
+
+@media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .cursor-sparkle {
+    display: none;
+  }
 }

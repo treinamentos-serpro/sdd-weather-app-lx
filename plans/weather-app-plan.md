@@ -24,7 +24,9 @@ flowchart LR
   State -->|repetir coordenadas selecionadas| Forecast
 ```
 
-Não há autenticação, backend, armazenamento local, cache, telemetria ou geolocalização automática (NFR7; Out of Scope). A interface segue o tema dark glassmorphism da stack, é em pt-BR e responsiva (NFR1, NFR2, NFR8), com controles e mensagens acessíveis por teclado e leitores de tela (NFR3, FR6).
+Não há autenticação, backend, armazenamento local, cache, telemetria ou geolocalização automática (NFR7; Out of Scope). A interface oferece temas claro e escuro com claro como padrão, mantém superfícies translúcidas, é em pt-BR e responsiva (NFR1, NFR2, NFR8), com controles e mensagens acessíveis por teclado e leitores de tela (NFR3, FR6).
+
+Tokens semânticos em CSS definem fundo, superfície, texto, borda, destaque e foco para ambos os temas. O estado do tema permanece local ao `App`, sem persistência. Um componente decorativo acompanha `pointermove` com atualização agrupada por `requestAnimationFrame`; ele usa `pointer-events: none`, fica oculto para ponteiros imprecisos e sob `prefers-reduced-motion: reduce`.
 
 ## Tech Stack
 

@@ -29,10 +29,10 @@ export default function SearchBar({ onSearch, disabled = false }: SearchBarProps
       role="search"
       aria-label="Buscar cidade"
       onSubmit={handleSubmit}
-      className="flex flex-col gap-2 rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-md sm:flex-row sm:items-start"
+      className="flex flex-col gap-2 rounded-lg border border-line/50 bg-panel/75 p-4 shadow-sm backdrop-blur-md sm:flex-row sm:items-start"
     >
       <div className="min-w-0 flex-1">
-        <label htmlFor={inputId} className="mb-1 block text-sm font-medium text-white/80">
+        <label htmlFor={inputId} className="mb-1 block text-sm font-medium text-muted">
           Nome da cidade
         </label>
         <input
@@ -49,7 +49,7 @@ export default function SearchBar({ onSearch, disabled = false }: SearchBarProps
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
           placeholder="Ex.: São Paulo"
-          className="w-full rounded-lg border border-white/30 bg-night-900/60 px-4 py-2 text-white placeholder:text-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-night-900 disabled:cursor-not-allowed disabled:opacity-50"
+          className="w-full rounded-lg border border-line bg-field px-4 py-2 text-primary placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-app disabled:cursor-not-allowed disabled:opacity-50"
         />
         {error && (
           <p id={errorId} role="alert" className="mt-1 text-sm text-red-400">
@@ -60,7 +60,7 @@ export default function SearchBar({ onSearch, disabled = false }: SearchBarProps
       <button
         type="submit"
         disabled={disabled}
-        className="rounded-lg bg-accent-400 px-4 py-2 font-medium text-night-900 transition hover:bg-accent-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-night-900 disabled:cursor-not-allowed disabled:opacity-50 sm:mt-6"
+        className="rounded-lg bg-action px-4 py-2 font-medium text-action-contrast transition hover:bg-action-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-app disabled:cursor-not-allowed disabled:opacity-50 sm:mt-6"
       >
         Buscar
       </button>
