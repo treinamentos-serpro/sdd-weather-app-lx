@@ -94,6 +94,14 @@ describe('App', () => {
     expect(retry).toHaveBeenCalledOnce();
   });
 
+  it('anuncia e move o foco para o resultado após uma busca bem-sucedida', () => {
+    useWeatherMock.mockReturnValue(weatherState({ status: 'success', data: mockWeatherData }));
+    render(<App />);
+
+    expect(screen.getByText('Clima carregado para Recife.')).toBeInTheDocument();
+    expect(screen.getByRole('main')).toHaveFocus();
+  });
+
   it('apresenta o sucesso e converte apenas a unidade da UI', async () => {
     useWeatherMock.mockReturnValue(weatherState({ status: 'success', data: mockWeatherData }));
     const user = userEvent.setup();

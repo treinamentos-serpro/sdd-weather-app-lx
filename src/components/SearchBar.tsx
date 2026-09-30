@@ -52,7 +52,7 @@ export default function SearchBar({ onSearch, disabled = false }: SearchBarProps
           className="w-full rounded-lg border border-line bg-field px-4 py-2 text-primary placeholder:text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-app disabled:cursor-not-allowed disabled:opacity-50"
         />
         {error && (
-          <p id={errorId} role="alert" className="mt-1 text-sm text-red-400">
+          <p id={errorId} role="alert" className="mt-1 text-sm text-error">
             {error}
           </p>
         )}

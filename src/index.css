@@ -16,6 +16,7 @@
   --color-action-contrast: 255 255 255;
   --color-highlight: 180 83 9;
   --color-focus: 8 116 137;
+  --color-error: 185 28 28;
   --sparkle-core: rgba(14, 137, 158, 0.2);
   --sparkle-dot: rgba(180, 83, 9, 0.65);
 }
@@ -33,6 +34,7 @@
   --color-action-contrast: 11 16 32;
   --color-highlight: 245 185 66;
   --color-focus: 255 255 255;
+  --color-error: 248 113 113;
   --sparkle-core: rgba(139, 155, 255, 0.24);
   --sparkle-dot: rgba(245, 185, 66, 0.85);
 }

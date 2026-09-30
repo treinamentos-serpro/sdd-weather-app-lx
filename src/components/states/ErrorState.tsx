@@ -8,8 +8,8 @@ export default function ErrorState({
   message = 'Não foi possível concluir a consulta',
 }: ErrorStateProps) {
   return (
-    <div role="alert" className="flex flex-wrap items-center gap-3 py-4 text-primary">
-      <p>{message}</p>
+    <div className="flex flex-wrap items-center gap-3 py-4 text-primary">
+      <p role="alert">{message}</p>
       <button
         type="button"
         onClick={onRetry}

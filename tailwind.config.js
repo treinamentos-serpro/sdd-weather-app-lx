@@ -27,6 +27,7 @@ export default {
         'action-contrast': 'rgb(var(--color-action-contrast) / <alpha-value>)',
         highlight: 'rgb(var(--color-highlight) / <alpha-value>)',
         focus: 'rgb(var(--color-focus) / <alpha-value>)',
+        error: 'rgb(var(--color-error) / <alpha-value>)',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],

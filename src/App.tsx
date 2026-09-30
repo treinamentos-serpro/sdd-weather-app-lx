@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import CurrentWeather from './components/CurrentWeather';
 import CursorSparkle from './components/CursorSparkle';
 import ForecastList from './components/ForecastList';
@@ -15,6 +15,13 @@ export default function App() {
   const { status, data, error, search, retry } = useWeather();
   const [unit, setUnit] = useState<Unit>('celsius');
   const [theme, setTheme] = useState<Theme>('light');
+  const mainRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (status === 'success') {
+      mainRef.current?.focus();
+    }
+  }, [status]);
 
   return (
     <div
@@ -34,7 +41,10 @@ export default function App() {
           <SearchBar onSearch={search} disabled={status === 'loading'} />
         </header>
 
-        <main className="space-y-8 py-6">
+        <main ref={mainRef} tabIndex={-1} className="space-y-8 py-6 outline-none">
+          <div aria-live="polite" aria-atomic="true" className="sr-only">
+            {status === 'success' && data ? `Clima carregado para ${data.city.name}.` : ''}
+          </div>
           {status === 'idle' && <p>Consulte o clima da sua cidade.</p>}
           {status === 'loading' && <LoadingState />}
           {status === 'empty' && <EmptyState />}
