@@ -72,6 +72,11 @@ describe('App', () => {
     render(<App />);
 
     expect(screen.getByRole('status')).toHaveTextContent('Carregando...');
+    expect(screen.getByRole('main')).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByRole('search', { name: 'Buscar cidade' })).toHaveAttribute(
+      'aria-busy',
+      'true',
+    );
     expect(screen.getByRole('textbox', { name: 'Nome da cidade' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Buscar' })).toBeDisabled();
   });
@@ -100,6 +105,7 @@ describe('App', () => {
 
     expect(screen.getByText('Clima carregado para Recife.')).toBeInTheDocument();
     expect(screen.getByRole('main')).toHaveFocus();
+    expect(screen.getByRole('main')).toHaveAttribute('aria-busy', 'false');
   });
 
   it('apresenta o sucesso e converte apenas a unidade da UI', async () => {

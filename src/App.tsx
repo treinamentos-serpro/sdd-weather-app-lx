@@ -41,7 +41,12 @@ export default function App() {
           <SearchBar onSearch={search} disabled={status === 'loading'} />
         </header>
 
-        <main ref={mainRef} tabIndex={-1} className="space-y-8 py-6 outline-none">
+        <main
+          ref={mainRef}
+          tabIndex={-1}
+          aria-busy={status === 'loading'}
+          className="space-y-8 py-6 outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-app"
+        >
           <div aria-live="polite" aria-atomic="true" className="sr-only">
             {status === 'success' && data ? `Clima carregado para ${data.city.name}.` : ''}
           </div>

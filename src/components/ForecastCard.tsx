@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { formatDayLabel } from '../lib/format';
 import type { ForecastDay, Unit } from '../types/weather';
 import { formatTemperatureLabel } from '../utils/temperature';
@@ -8,7 +9,7 @@ interface ForecastCardProps {
   unit: Unit;
 }
 
-export default function ForecastCard({ day, unit }: ForecastCardProps) {
+function ForecastCard({ day, unit }: ForecastCardProps) {
   const condition = getWeatherCodeInfo(day.weatherCode);
   const probability = day.precipitationProbability;
 
@@ -34,3 +35,5 @@ export default function ForecastCard({ day, unit }: ForecastCardProps) {
     </li>
   );
 }
+
+export default memo(ForecastCard);

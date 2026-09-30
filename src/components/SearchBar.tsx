@@ -28,6 +28,7 @@ export default function SearchBar({ onSearch, disabled = false }: SearchBarProps
     <form
       role="search"
       aria-label="Buscar cidade"
+      aria-busy={disabled}
       onSubmit={handleSubmit}
       className="flex flex-col gap-2 rounded-lg border border-line/50 bg-panel/75 p-4 shadow-sm backdrop-blur-md sm:flex-row sm:items-start"
     >
@@ -60,7 +61,7 @@ export default function SearchBar({ onSearch, disabled = false }: SearchBarProps
       <button
         type="submit"
         disabled={disabled}
-        className="rounded-lg bg-action px-4 py-2 font-medium text-action-contrast transition hover:bg-action-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-app disabled:cursor-not-allowed disabled:opacity-50 sm:mt-6"
+        className="rounded-lg bg-action px-4 py-2 font-medium text-action-contrast transition hover:bg-action-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-app disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-action sm:mt-6"
       >
         Buscar
       </button>
