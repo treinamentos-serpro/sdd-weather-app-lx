@@ -19,10 +19,14 @@ async function fetchWithTimeout(url: string): Promise<Response> {
     return await fetch(url, { signal: controller.signal });
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') {
-      throw new WeatherServiceError('A requisição demorou demais.');
+      throw new WeatherServiceError(
+        'A consulta demorou mais de 10 segundos. Verifique sua conexão e tente novamente.',
+      );
     }
 
-    throw new WeatherServiceError('Falha de rede.');
+    throw new WeatherServiceError(
+      'Não foi possível conectar ao serviço de clima. Verifique sua conexão e tente novamente.',
+    );
   } finally {
     clearTimeout(timeoutId);
   }
@@ -162,7 +166,9 @@ export async function searchCities(name: string): Promise<City[]> {
   const response = await fetchWithTimeout(url);
 
   if (!response.ok) {
-    throw new WeatherServiceError('Não foi possível buscar cidades.');
+    throw new WeatherServiceError(
+      'O serviço de busca de cidades está indisponível no momento. Tente novamente.',
+    );
   }
 
   const payload = await readJson(response);
@@ -181,7 +187,9 @@ export async function getWeather(city: City): Promise<WeatherData> {
   const response = await fetchWithTimeout(url);
 
   if (!response.ok) {
-    throw new WeatherServiceError('Não foi possível buscar a previsão.');
+    throw new WeatherServiceError(
+      'O serviço de previsão está indisponível no momento. Tente novamente.',
+    );
   }
 
   const payload = await readJson(response);

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { getWeather, searchCities } from '../services/weatherService';
+import { getWeather, searchCities, WeatherServiceError } from '../services/weatherService';
 import type { City, WeatherData } from '../types/weather';
 
 type WeatherStatus = 'idle' | 'loading' | 'success' | 'error' | 'empty';
@@ -18,7 +18,11 @@ export interface UseWeatherResult {
 }
 
 function getErrorMessage(error: unknown): string {
-  return error instanceof Error ? error.message : 'Não foi possível concluir a consulta.';
+  if (error instanceof WeatherServiceError && error.message) {
+    return error.message;
+  }
+
+  return 'Não foi possível concluir a consulta. Verifique sua conexão e tente novamente.';
 }
 
 export function useWeather(): UseWeatherResult {
@@ -38,8 +42,6 @@ export function useWeather(): UseWeatherResult {
   );
 
   const loadWeather = async (city: City, currentOperationId: number) => {
-    lastOperation.current = { type: 'select', city };
-
     try {
       const weather = await getWeather(city);
       if (operationId.current !== currentOperationId) {
@@ -102,6 +104,7 @@ export function useWeather(): UseWeatherResult {
   const selectCity = async (city: City) => {
     const currentOperationId = operationId.current + 1;
     operationId.current = currentOperationId;
+    lastOperation.current = { type: 'select', city };
     setStatus('loading');
     setData(null);
     setError(null);

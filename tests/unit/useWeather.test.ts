@@ -116,6 +116,28 @@ describe('useWeather', () => {
     expect(result.current.status).toBe('success');
   });
 
+  it('retries the full search after the forecast request fails offline', async () => {
+    searchCitiesMock.mockResolvedValue([city]);
+    getWeatherMock.mockRejectedValueOnce(new WeatherServiceError('Falha de rede.'));
+    getWeatherMock.mockResolvedValueOnce(weather);
+    const { result } = renderHook(() => useWeather());
+
+    await act(async () => {
+      await result.current.search('Recife');
+    });
+    expect(result.current.status).toBe('error');
+
+    await act(async () => {
+      await result.current.retry();
+    });
+
+    expect(searchCitiesMock).toHaveBeenCalledTimes(2);
+    expect(searchCitiesMock).toHaveBeenNthCalledWith(1, 'Recife');
+    expect(searchCitiesMock).toHaveBeenNthCalledWith(2, 'Recife');
+    expect(getWeatherMock).toHaveBeenCalledTimes(2);
+    expect(result.current.status).toBe('success');
+  });
+
   it('ignores an obsolete search response', async () => {
     let resolveFirstSearch: (cities: City[]) => void = () => undefined;
     searchCitiesMock

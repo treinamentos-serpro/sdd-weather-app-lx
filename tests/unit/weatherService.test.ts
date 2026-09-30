@@ -90,7 +90,8 @@ describe('searchCities', () => {
     await expect(searchCities('Recife')).rejects.toEqual(
       expect.objectContaining({
         name: 'WeatherServiceError',
-        message: 'Falha de rede.',
+        message:
+          'Não foi possível conectar ao serviço de clima. Verifique sua conexão e tente novamente.',
       }),
     );
   });
@@ -110,7 +111,7 @@ describe('searchCities', () => {
     const requestExpectation = expect(searchCities('Recife')).rejects.toEqual(
       expect.objectContaining({
         name: 'WeatherServiceError',
-        message: 'A requisição demorou demais.',
+        message: 'A consulta demorou mais de 10 segundos. Verifique sua conexão e tente novamente.',
       }),
     );
     await vi.advanceTimersByTimeAsync(10_000);
