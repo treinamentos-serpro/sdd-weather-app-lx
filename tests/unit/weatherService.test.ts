@@ -72,6 +72,12 @@ describe('searchCities', () => {
     await expect(searchCities('Cidade inexistente')).resolves.toEqual([]);
   });
 
+  it('returns an empty list when geocoding has no results', async () => {
+    fetchMock.mockResolvedValue(new Response(JSON.stringify({ results: [] })));
+
+    await expect(searchCities('Cidade inexistente')).resolves.toEqual([]);
+  });
+
   it('throws WeatherServiceError when the response is not ok', async () => {
     fetchMock.mockResolvedValue(new Response(null, { status: 503 }));
 

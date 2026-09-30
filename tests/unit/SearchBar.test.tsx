@@ -28,6 +28,28 @@ describe('SearchBar', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Informe o nome de uma cidade.');
   });
 
+  it('does not call onSearch for an empty input', async () => {
+    const onSearch = vi.fn();
+    const user = userEvent.setup();
+    render(<SearchBar onSearch={onSearch} />);
+
+    await user.click(screen.getByRole('button', { name: 'Buscar' }));
+
+    expect(onSearch).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toHaveTextContent('Informe o nome de uma cidade.');
+  });
+
+  it('preserves accents, apostrophes and internal spaces when searching', async () => {
+    const onSearch = vi.fn();
+    const user = userEvent.setup();
+    render(<SearchBar onSearch={onSearch} />);
+
+    await user.type(screen.getByLabelText('Nome da cidade'), "  São José d'Água  ");
+    await user.keyboard('{Enter}');
+
+    expect(onSearch).toHaveBeenCalledWith("São José d'Água");
+  });
+
   it('disables the input and button when disabled prop is true', () => {
     render(<SearchBar onSearch={vi.fn()} disabled />);
 

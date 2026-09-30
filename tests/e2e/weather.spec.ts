@@ -76,7 +76,9 @@ test('permite tentar novamente após falha do geocoding', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Nome da cidade' }).fill('São Paulo');
   await page.getByRole('button', { name: 'Buscar' }).click();
 
-  await expect(page.getByRole('alert')).toContainText('Não foi possível buscar cidades.');
+  await expect(page.getByRole('alert')).toContainText(
+    'O serviço de busca de cidades está indisponível no momento. Tente novamente.',
+  );
   await page.getByRole('button', { name: 'Tentar novamente' }).click();
 
   await expect(page.getByRole('region', { name: 'Clima atual' })).toContainText('São Paulo');
@@ -102,4 +104,93 @@ test('mantém a previsão quando o clima atual está ausente', async ({ page }) 
     page.getByRole('region', { name: 'Previsão de 5 dias' }).getByRole('listitem'),
   ).toHaveCount(5);
   await expect(page.getByRole('alert')).toHaveCount(0);
+});
+
+test('não inicia busca para campo vazio ou só espaços', async ({ page }) => {
+  let geocodingRequests = 0;
+  await page.route('**://geocoding-api.open-meteo.com/**', async (route) => {
+    geocodingRequests += 1;
+    await route.fulfill({ json: { results: [] } });
+  });
+
+  await page.goto('/');
+  const searchInput = page.getByRole('textbox', { name: 'Nome da cidade' });
+  const searchButton = page.getByRole('button', { name: 'Buscar' });
+
+  await searchButton.click();
+  await expect(page.getByRole('alert')).toContainText('Informe o nome de uma cidade.');
+  expect(geocodingRequests).toBe(0);
+
+  await searchInput.fill('   ');
+  await searchButton.click();
+  await expect(page.getByRole('alert')).toContainText('Informe o nome de uma cidade.');
+  expect(geocodingRequests).toBe(0);
+});
+
+test('preserva caracteres especiais no nome enviado ao geocoding', async ({ page }) => {
+  let requestedName = '';
+  await page.route('**://geocoding-api.open-meteo.com/**', async (route) => {
+    requestedName = new URL(route.request().url()).searchParams.get('name') ?? '';
+    await route.fulfill({ json: { results: [city] } });
+  });
+  await page.route('**://api.open-meteo.com/**', async (route) => {
+    await route.fulfill({ json: forecast });
+  });
+
+  await page.goto('/');
+  await page.getByRole('textbox', { name: 'Nome da cidade' }).fill("  São José d'Água  ");
+  await page.getByRole('button', { name: 'Buscar' }).click();
+
+  await expect(page.getByRole('region', { name: 'Clima atual' })).toContainText('São Paulo');
+  expect(requestedName).toBe("São José d'Água");
+});
+
+test('mostra estado vazio quando o geocoding não encontra cidades', async ({ page }) => {
+  let forecastRequests = 0;
+  await page.route('**://geocoding-api.open-meteo.com/**', async (route) => {
+    await route.fulfill({ json: { results: [] } });
+  });
+  await page.route('**://api.open-meteo.com/**', async (route) => {
+    forecastRequests += 1;
+    await route.fulfill({ json: forecast });
+  });
+
+  await page.goto('/');
+  await page.getByRole('textbox', { name: 'Nome da cidade' }).fill('Cidade inexistente');
+  await page.getByRole('button', { name: 'Buscar' }).click();
+
+  await expect(page.getByRole('status')).toContainText('Nenhuma cidade encontrada');
+  await expect(page.getByRole('region', { name: 'Clima atual' })).toHaveCount(0);
+  expect(forecastRequests).toBe(0);
+});
+
+test('mostra somente os dias completos quando o forecast está incompleto', async ({ page }) => {
+  await page.route('**://geocoding-api.open-meteo.com/**', async (route) => {
+    await route.fulfill({ json: { results: [city] } });
+  });
+  await page.route('**://api.open-meteo.com/**', async (route) => {
+    await route.fulfill({
+      json: {
+        ...forecast,
+        daily: {
+          ...forecast.daily,
+          temperature_2m_min: [
+            forecast.daily.temperature_2m_min[0],
+            null,
+            forecast.daily.temperature_2m_min[2],
+            forecast.daily.temperature_2m_min[3],
+            forecast.daily.temperature_2m_min[4],
+          ],
+        },
+      },
+    });
+  });
+
+  await page.goto('/');
+  await page.getByRole('textbox', { name: 'Nome da cidade' }).fill('São Paulo');
+  await page.getByRole('button', { name: 'Buscar' }).click();
+
+  const forecastRegion = page.getByRole('region', { name: 'Previsão de 5 dias' });
+  await expect(forecastRegion.getByRole('listitem')).toHaveCount(4);
+  await expect(forecastRegion.getByRole('status')).toContainText('Previsão incompleta');
 });
