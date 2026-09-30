@@ -1,12 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { getWeatherCodeInfo } from '../../src/utils/weather-codes';
+import { getWeatherCodeInfo } from '../../src/lib/weatherCodes';
 
 describe('getWeatherCodeInfo', () => {
-  it('returns a known description for a supported code', () => {
-    expect(getWeatherCodeInfo(0).description).toBe('Céu limpo');
+  it('retorna descrição e ícone para um código conhecido', () => {
+    expect(getWeatherCodeInfo(0)).toEqual({ description: 'Céu limpo', icon: '☀️' });
   });
 
-  it('returns the unknown fallback for an unsupported code', () => {
-    expect(getWeatherCodeInfo(9999).description).toBe('Condição desconhecida');
+  it('retorna o fallback para um código desconhecido', () => {
+    expect(getWeatherCodeInfo(9999)).toEqual({
+      description: 'Condição desconhecida',
+      icon: '❓',
+    });
   });
 });
