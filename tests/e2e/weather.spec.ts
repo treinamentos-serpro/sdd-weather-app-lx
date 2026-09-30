@@ -27,10 +27,13 @@ const forecast = {
 };
 
 test('busca uma cidade, mostra cinco dias e converte para Fahrenheit', async ({ page }) => {
+  let forecastRequests = 0;
+
   await page.route('**://geocoding-api.open-meteo.com/**', async (route) => {
     await route.fulfill({ json: { results: [city] } });
   });
   await page.route('**://api.open-meteo.com/**', async (route) => {
+    forecastRequests += 1;
     await route.fulfill({ json: forecast });
   });
 
@@ -47,4 +50,56 @@ test('busca uma cidade, mostra cinco dias e converte para Fahrenheit', async ({ 
 
   await page.getByRole('button', { name: '°F' }).click();
   await expect(currentWeather).toContainText('32°F');
+  await page.getByRole('button', { name: '°C' }).click();
+  await expect(currentWeather).toContainText('0°C');
+  await page.getByRole('button', { name: '°F' }).click();
+  await expect(currentWeather).toContainText('32°F');
+  expect(forecastRequests).toBe(1);
+});
+
+test('permite tentar novamente após falha do geocoding', async ({ page }) => {
+  let geocodingRequests = 0;
+  await page.route('**://geocoding-api.open-meteo.com/**', async (route) => {
+    geocodingRequests += 1;
+    if (geocodingRequests === 1) {
+      await route.fulfill({ status: 503 });
+      return;
+    }
+
+    await route.fulfill({ json: { results: [city] } });
+  });
+  await page.route('**://api.open-meteo.com/**', async (route) => {
+    await route.fulfill({ json: forecast });
+  });
+
+  await page.goto('/');
+  await page.getByRole('textbox', { name: 'Nome da cidade' }).fill('São Paulo');
+  await page.getByRole('button', { name: 'Buscar' }).click();
+
+  await expect(page.getByRole('alert')).toContainText('Não foi possível buscar cidades.');
+  await page.getByRole('button', { name: 'Tentar novamente' }).click();
+
+  await expect(page.getByRole('region', { name: 'Clima atual' })).toContainText('São Paulo');
+  expect(geocodingRequests).toBe(2);
+});
+
+test('mantém a previsão quando o clima atual está ausente', async ({ page }) => {
+  await page.route('**://geocoding-api.open-meteo.com/**', async (route) => {
+    await route.fulfill({ json: { results: [city] } });
+  });
+  await page.route('**://api.open-meteo.com/**', async (route) => {
+    await route.fulfill({ json: { ...forecast, current: undefined } });
+  });
+
+  await page.goto('/');
+  await page.getByRole('textbox', { name: 'Nome da cidade' }).fill('São Paulo');
+  await page.getByRole('button', { name: 'Buscar' }).click();
+
+  await expect(page.getByRole('region', { name: 'Clima atual' })).toContainText(
+    'Clima atual indisponível no momento.',
+  );
+  await expect(
+    page.getByRole('region', { name: 'Previsão de 5 dias' }).getByRole('listitem'),
+  ).toHaveCount(5);
+  await expect(page.getByRole('alert')).toHaveCount(0);
 });

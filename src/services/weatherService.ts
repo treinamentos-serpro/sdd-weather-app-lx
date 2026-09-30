@@ -28,6 +28,14 @@ async function fetchWithTimeout(url: string): Promise<Response> {
   }
 }
 
+async function readJson(response: Response): Promise<unknown> {
+  try {
+    return await response.json();
+  } catch {
+    throw new WeatherServiceError('A resposta do serviço é inválida.');
+  }
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
@@ -82,9 +90,9 @@ function mapCurrentWeather(value: unknown): CurrentWeather | undefined {
   return { time, temperatureCelsius: temperature, weatherCode };
 }
 
-function mapForecastDays(value: unknown): ForecastDay[] | undefined {
+function mapForecastDays(value: unknown): ForecastDay[] {
   if (!isRecord(value)) {
-    return undefined;
+    return [];
   }
 
   const {
@@ -102,7 +110,7 @@ function mapForecastDays(value: unknown): ForecastDay[] | undefined {
     !Array.isArray(maximumTemperatures) ||
     (precipitationProbabilities !== undefined && !Array.isArray(precipitationProbabilities))
   ) {
-    return undefined;
+    return [];
   }
 
   const forecastDays: ForecastDay[] = [];
@@ -128,7 +136,7 @@ function mapForecastDays(value: unknown): ForecastDay[] | undefined {
         (typeof precipitationProbability !== 'number' ||
           !Number.isFinite(precipitationProbability)))
     ) {
-      return undefined;
+      continue;
     }
 
     forecastDays.push({
@@ -157,7 +165,7 @@ export async function searchCities(name: string): Promise<City[]> {
     throw new WeatherServiceError('Não foi possível buscar cidades.');
   }
 
-  const payload: unknown = await response.json();
+  const payload = await readJson(response);
   if (!isRecord(payload) || !Array.isArray(payload.results)) {
     return [];
   }
@@ -176,23 +184,31 @@ export async function getWeather(city: City): Promise<WeatherData> {
     throw new WeatherServiceError('Não foi possível buscar a previsão.');
   }
 
-  const payload: unknown = await response.json();
+  const payload = await readJson(response);
   if (!isRecord(payload)) {
     throw new WeatherServiceError('A resposta da previsão está incompleta.');
   }
 
   const current = mapCurrentWeather(payload.current);
   const forecastDays = mapForecastDays(payload.daily);
-  if (!current || !forecastDays || typeof payload.timezone !== 'string') {
+  const unavailable: Array<'current' | 'daily'> = [];
+  if (!current) {
+    unavailable.push('current');
+  }
+  if (forecastDays.length === 0) {
+    unavailable.push('daily');
+  }
+
+  if (unavailable.length === 2 || typeof payload.timezone !== 'string') {
     throw new WeatherServiceError('A resposta da previsão está incompleta.');
   }
 
   return {
     city,
     timezone: payload.timezone,
-    current,
+    ...(current ? { current } : {}),
     forecastDays,
-    unavailable: [],
-    incompleteDaily: false,
+    unavailable,
+    incompleteDaily: forecastDays.length < 5,
   };
 }

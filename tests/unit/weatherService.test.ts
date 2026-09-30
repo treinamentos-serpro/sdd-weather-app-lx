@@ -78,6 +78,12 @@ describe('searchCities', () => {
     await expect(searchCities('Recife')).rejects.toBeInstanceOf(WeatherServiceError);
   });
 
+  it('converts invalid JSON to WeatherServiceError', async () => {
+    fetchMock.mockResolvedValue(new Response('{invalid'));
+
+    await expect(searchCities('Recife')).rejects.toBeInstanceOf(WeatherServiceError);
+  });
+
   it('converts network failures to WeatherServiceError', async () => {
     fetchMock.mockRejectedValue(new TypeError('Failed to fetch'));
 
@@ -199,12 +205,68 @@ describe('getWeather', () => {
     });
   });
 
-  it.each([
-    'current',
-    'daily',
-  ] as const)('throws WeatherServiceError when %s is missing', async (section) => {
-    const incompletePayload = { ...forecastPayload, [section]: undefined };
-    fetchMock.mockResolvedValue(new Response(JSON.stringify(incompletePayload)));
+  it('keeps daily data when current weather is missing', async () => {
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify({ ...forecastPayload, current: undefined })),
+    );
+
+    const weather = await getWeather(city);
+
+    expect(weather).not.toHaveProperty('current');
+    expect(weather).toMatchObject({
+      forecastDays: expect.arrayContaining([expect.objectContaining({ date: '2026-09-30' })]),
+      unavailable: ['current'],
+      incompleteDaily: false,
+    });
+  });
+
+  it('keeps current weather when daily data is missing', async () => {
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify({ ...forecastPayload, daily: undefined })),
+    );
+
+    await expect(getWeather(city)).resolves.toMatchObject({
+      current: expect.objectContaining({ temperatureCelsius: 28.5 }),
+      forecastDays: [],
+      unavailable: ['daily'],
+      incompleteDaily: true,
+    });
+  });
+
+  it('omits an incomplete day and marks the forecast as incomplete', async () => {
+    const partialPayload = {
+      ...forecastPayload,
+      daily: {
+        ...forecastPayload.daily,
+        temperature_2m_min: [23, null, 22, 21, 23],
+      },
+    };
+    fetchMock.mockResolvedValue(new Response(JSON.stringify(partialPayload)));
+
+    const weather = await getWeather(city);
+
+    expect(weather.forecastDays).toHaveLength(4);
+    expect(weather.forecastDays.map((day) => day.date)).not.toContain('2026-10-01');
+    expect(weather.incompleteDaily).toBe(true);
+    expect(weather.unavailable).toEqual([]);
+  });
+
+  it('throws WeatherServiceError when no valid section remains', async () => {
+    fetchMock.mockResolvedValue(
+      new Response(JSON.stringify({ ...forecastPayload, current: undefined, daily: undefined })),
+    );
+
+    await expect(getWeather(city)).rejects.toBeInstanceOf(WeatherServiceError);
+  });
+
+  it('throws WeatherServiceError for a non-ok forecast response', async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 503 }));
+
+    await expect(getWeather(city)).rejects.toBeInstanceOf(WeatherServiceError);
+  });
+
+  it('converts invalid forecast JSON to WeatherServiceError', async () => {
+    fetchMock.mockResolvedValue(new Response('{invalid'));
 
     await expect(getWeather(city)).rejects.toBeInstanceOf(WeatherServiceError);
   });

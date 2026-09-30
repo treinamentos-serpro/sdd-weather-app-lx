@@ -20,6 +20,13 @@ const city: City = {
   longitude: -34.88,
 };
 
+const otherCity: City = {
+  name: 'Olinda',
+  country: 'Brasil',
+  latitude: -8.01,
+  longitude: -34.85,
+};
+
 const weather: WeatherData = {
   city,
   timezone: 'America/Recife',
@@ -87,6 +94,28 @@ describe('useWeather', () => {
     expect(result.current.status).toBe('success');
   });
 
+  it('retries geocoding with the same normalized query', async () => {
+    searchCitiesMock
+      .mockRejectedValueOnce(new WeatherServiceError('Falha de rede.'))
+      .mockResolvedValueOnce([city]);
+    getWeatherMock.mockResolvedValue(weather);
+    const { result } = renderHook(() => useWeather());
+
+    await act(async () => {
+      await result.current.search('  Recife  ');
+    });
+    expect(result.current.status).toBe('error');
+
+    await act(async () => {
+      await result.current.retry();
+    });
+
+    expect(searchCitiesMock).toHaveBeenCalledTimes(2);
+    expect(searchCitiesMock).toHaveBeenNthCalledWith(1, 'Recife');
+    expect(searchCitiesMock).toHaveBeenNthCalledWith(2, 'Recife');
+    expect(result.current.status).toBe('success');
+  });
+
   it('ignores an obsolete search response', async () => {
     let resolveFirstSearch: (cities: City[]) => void = () => undefined;
     searchCitiesMock
@@ -118,5 +147,34 @@ describe('useWeather', () => {
       data: null,
     });
     expect(getWeatherMock).not.toHaveBeenCalled();
+  });
+
+  it('ignores an obsolete weather response after another city is selected', async () => {
+    let resolveFirstWeather: (data: WeatherData) => void = () => undefined;
+    const otherWeather: WeatherData = { ...weather, city: otherCity };
+    getWeatherMock
+      .mockImplementationOnce(
+        () =>
+          new Promise((resolve) => {
+            resolveFirstWeather = resolve;
+          }),
+      )
+      .mockResolvedValueOnce(otherWeather);
+    const { result } = renderHook(() => useWeather());
+    let firstSelection: Promise<void> = Promise.resolve();
+
+    act(() => {
+      firstSelection = result.current.selectCity(city);
+    });
+    await act(async () => {
+      await result.current.selectCity(otherCity);
+    });
+    await act(async () => {
+      resolveFirstWeather(weather);
+      await firstSelection;
+    });
+
+    expect(result.current.status).toBe('success');
+    expect(result.current.data?.city).toEqual(otherCity);
   });
 });
