@@ -1,6 +1,7 @@
-import type { City } from '../types/weather';
+import type { City, CurrentWeather, ForecastDay, WeatherData } from '../types/weather';
 
 const GEOCODING_URL = 'https://geocoding-api.open-meteo.com/v1/search';
+const FORECAST_URL = 'https://api.open-meteo.com/v1/forecast';
 
 export class WeatherServiceError extends Error {
   constructor(message: string) {
@@ -44,6 +45,71 @@ function mapCity(value: unknown): City | undefined {
   };
 }
 
+function mapCurrentWeather(value: unknown): CurrentWeather | undefined {
+  if (!isRecord(value)) {
+    return undefined;
+  }
+
+  const { time, temperature_2m: temperature, weather_code: weatherCode } = value;
+  if (
+    typeof time !== 'string' ||
+    typeof temperature !== 'number' ||
+    !Number.isFinite(temperature) ||
+    typeof weatherCode !== 'number' ||
+    !Number.isFinite(weatherCode)
+  ) {
+    return undefined;
+  }
+
+  return { time, temperatureCelsius: temperature, weatherCode };
+}
+
+function mapForecastDays(value: unknown): ForecastDay[] | undefined {
+  if (!isRecord(value)) {
+    return undefined;
+  }
+
+  const {
+    time,
+    weather_code: weatherCodes,
+    temperature_2m_min: minimumTemperatures,
+    temperature_2m_max: maximumTemperatures,
+  } = value;
+
+  if (
+    !Array.isArray(time) ||
+    !Array.isArray(weatherCodes) ||
+    !Array.isArray(minimumTemperatures) ||
+    !Array.isArray(maximumTemperatures)
+  ) {
+    return undefined;
+  }
+
+  const forecastDays: ForecastDay[] = [];
+  for (let index = 0; index < 5; index += 1) {
+    const date = time[index];
+    const weatherCode = weatherCodes[index];
+    const minimumCelsius = minimumTemperatures[index];
+    const maximumCelsius = maximumTemperatures[index];
+
+    if (
+      typeof date !== 'string' ||
+      typeof weatherCode !== 'number' ||
+      !Number.isFinite(weatherCode) ||
+      typeof minimumCelsius !== 'number' ||
+      !Number.isFinite(minimumCelsius) ||
+      typeof maximumCelsius !== 'number' ||
+      !Number.isFinite(maximumCelsius)
+    ) {
+      return undefined;
+    }
+
+    forecastDays.push({ date, weatherCode, minimumCelsius, maximumCelsius });
+  }
+
+  return forecastDays;
+}
+
 export async function searchCities(name: string): Promise<City[]> {
   if (name.trim().length === 0) {
     return [];
@@ -65,4 +131,33 @@ export async function searchCities(name: string): Promise<City[]> {
     const city = mapCity(result);
     return city ? [city] : [];
   });
+}
+
+export async function getWeather(city: City): Promise<WeatherData> {
+  const url = `${FORECAST_URL}?latitude=${city.latitude}&longitude=${city.longitude}&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&temperature_unit=celsius&forecast_days=5`;
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new WeatherServiceError('Não foi possível buscar a previsão.');
+  }
+
+  const payload: unknown = await response.json();
+  if (!isRecord(payload)) {
+    throw new WeatherServiceError('A resposta da previsão está incompleta.');
+  }
+
+  const current = mapCurrentWeather(payload.current);
+  const forecastDays = mapForecastDays(payload.daily);
+  if (!current || !forecastDays || typeof payload.timezone !== 'string') {
+    throw new WeatherServiceError('A resposta da previsão está incompleta.');
+  }
+
+  return {
+    city,
+    timezone: payload.timezone,
+    current,
+    forecastDays,
+    unavailable: [],
+    incompleteDaily: false,
+  };
 }
