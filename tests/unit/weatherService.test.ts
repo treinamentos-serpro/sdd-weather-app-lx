@@ -170,7 +170,6 @@ describe('getWeather', () => {
           weatherCode: 1,
           minimumCelsius: 23,
           maximumCelsius: 29,
-          precipitationProbability: 0,
         },
         {
           date: '2026-10-01',

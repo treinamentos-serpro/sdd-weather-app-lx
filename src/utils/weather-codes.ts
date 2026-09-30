@@ -37,6 +37,6 @@ const WEATHER_CODES: Record<number, WeatherCodeInfo> = {
 
 const UNKNOWN_CODE: WeatherCodeInfo = { description: 'Condição desconhecida', icon: '❓' };
 
-export function getWeatherCodeInfo(code: number): WeatherCodeInfo {
-  return WEATHER_CODES[code] ?? UNKNOWN_CODE;
+export function getWeatherCodeInfo(code: number | null | undefined): WeatherCodeInfo {
+  return typeof code === 'number' ? (WEATHER_CODES[code] ?? UNKNOWN_CODE) : UNKNOWN_CODE;
 }

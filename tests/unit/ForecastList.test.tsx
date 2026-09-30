@@ -40,7 +40,7 @@ describe('ForecastList', () => {
     expect(within(cards[0]).getByText('Máx 25°C / Mín 16°C')).toBeInTheDocument();
     expect(within(cards[0]).getByText('Chuva: 0%')).toBeInTheDocument();
     expect(within(cards[1]).getByText('Chuva: 75%')).toBeInTheDocument();
-    expect(within(cards[2]).getByText('Chuva: indisponível')).toBeInTheDocument();
+    expect(within(cards[2]).getByText('Chuva: —')).toBeInTheDocument();
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 

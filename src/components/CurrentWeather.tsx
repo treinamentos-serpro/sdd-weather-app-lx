@@ -1,5 +1,5 @@
 import type { City, CurrentWeather as CurrentWeatherData, Unit } from '../types/weather';
-import { formatTemperature, unitSymbol } from '../utils/temperature';
+import { formatTemperatureLabel } from '../utils/temperature';
 import { getWeatherCodeInfo } from '../utils/weather-codes';
 
 interface CurrentWeatherProps {
@@ -9,7 +9,10 @@ interface CurrentWeatherProps {
 }
 
 export default function CurrentWeather({ city, current, unit }: CurrentWeatherProps) {
-  const location = [city.name, city.admin1, city.country].filter(Boolean).join(', ');
+  const location =
+    [city.name, city.admin1, city.country]
+      .filter((part): part is string => typeof part === 'string' && part.trim().length > 0)
+      .join(', ') || '—';
 
   return (
     <section
@@ -27,8 +30,7 @@ export default function CurrentWeather({ city, current, unit }: CurrentWeatherPr
           </span>
           <div className="min-w-0 break-words">
             <p className="text-5xl font-bold text-highlight sm:text-6xl">
-              {formatTemperature(current.temperatureCelsius, unit)}
-              {unitSymbol(unit)}
+              {formatTemperatureLabel(current.temperatureCelsius, unit)}
             </p>
             <p className="text-muted">{getWeatherCodeInfo(current.weatherCode).description}</p>
           </div>

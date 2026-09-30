@@ -43,4 +43,24 @@ describe('CurrentWeather', () => {
 
     expect(screen.getByRole('status')).toHaveTextContent('Clima atual indisponível no momento.');
   });
+
+  it('uses safe fallbacks for invalid current values', () => {
+    render(
+      <CurrentWeather
+        city={city}
+        current={
+          {
+            time: '2026-09-30T14:00',
+            temperatureCelsius: Number.NaN,
+            weatherCode: Number.NaN,
+          } as never
+        }
+        unit="celsius"
+      />,
+    );
+
+    expect(screen.getByText('—')).toBeInTheDocument();
+    expect(screen.getByText('Condição desconhecida')).toBeInTheDocument();
+    expect(screen.queryByText(/NaN|undefined/)).not.toBeInTheDocument();
+  });
 });

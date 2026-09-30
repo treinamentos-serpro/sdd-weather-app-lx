@@ -14,6 +14,14 @@ export function formatTemperature(celsius: number, unit: Unit): number {
   return roundHalfAwayFromZero(value);
 }
 
+export function formatTemperatureLabel(value: unknown, unit: Unit): string {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    return '—';
+  }
+
+  return `${formatTemperature(value, unit)}${unitSymbol(unit)}`;
+}
+
 export function unitSymbol(unit: Unit): string {
   return unit === 'fahrenheit' ? '°F' : '°C';
 }

@@ -1,6 +1,6 @@
 import { formatDayLabel } from '../lib/format';
 import type { ForecastDay, Unit } from '../types/weather';
-import { formatTemperature, unitSymbol } from '../utils/temperature';
+import { formatTemperatureLabel } from '../utils/temperature';
 import { getWeatherCodeInfo } from '../utils/weather-codes';
 
 interface ForecastCardProps {
@@ -20,9 +20,8 @@ export default function ForecastCard({ day, unit }: ForecastCardProps) {
       </span>
       <p className="break-words text-sm text-muted">{condition.description}</p>
       <p className="mt-2 font-semibold">
-        Máx {formatTemperature(day.maximumCelsius, unit)}
-        {unitSymbol(unit)} / Mín {formatTemperature(day.minimumCelsius, unit)}
-        {unitSymbol(unit)}
+        Máx {formatTemperatureLabel(day.maximumCelsius, unit)} / Mín{' '}
+        {formatTemperatureLabel(day.minimumCelsius, unit)}
       </p>
       <p className="mt-2 text-sm text-muted">
         {probability !== undefined &&
@@ -30,7 +29,7 @@ export default function ForecastCard({ day, unit }: ForecastCardProps) {
         probability >= 0 &&
         probability <= 100
           ? `Chuva: ${Math.round(probability)}%`
-          : 'Chuva: indisponível'}
+          : 'Chuva: —'}
       </p>
     </li>
   );

@@ -143,14 +143,15 @@ function mapForecastDays(value: unknown): ForecastDay[] {
       continue;
     }
 
+    const hasPrecipitationProbability =
+      typeof precipitationProbability === 'number' && Number.isFinite(precipitationProbability);
+
     forecastDays.push({
       date,
       weatherCode,
       minimumCelsius,
       maximumCelsius,
-      ...(precipitationProbability !== undefined
-        ? { precipitationProbability: precipitationProbability ?? 0 }
-        : {}),
+      ...(hasPrecipitationProbability ? { precipitationProbability } : {}),
     });
   }
 
