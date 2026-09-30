@@ -92,13 +92,15 @@ function mapForecastDays(value: unknown): ForecastDay[] | undefined {
     weather_code: weatherCodes,
     temperature_2m_min: minimumTemperatures,
     temperature_2m_max: maximumTemperatures,
+    precipitation_probability_max: precipitationProbabilities,
   } = value;
 
   if (
     !Array.isArray(time) ||
     !Array.isArray(weatherCodes) ||
     !Array.isArray(minimumTemperatures) ||
-    !Array.isArray(maximumTemperatures)
+    !Array.isArray(maximumTemperatures) ||
+    (precipitationProbabilities !== undefined && !Array.isArray(precipitationProbabilities))
   ) {
     return undefined;
   }
@@ -109,6 +111,9 @@ function mapForecastDays(value: unknown): ForecastDay[] | undefined {
     const weatherCode = weatherCodes[index];
     const minimumCelsius = minimumTemperatures[index];
     const maximumCelsius = maximumTemperatures[index];
+    const precipitationProbability = Array.isArray(precipitationProbabilities)
+      ? precipitationProbabilities[index]
+      : undefined;
 
     if (
       typeof date !== 'string' ||
@@ -117,12 +122,24 @@ function mapForecastDays(value: unknown): ForecastDay[] | undefined {
       typeof minimumCelsius !== 'number' ||
       !Number.isFinite(minimumCelsius) ||
       typeof maximumCelsius !== 'number' ||
-      !Number.isFinite(maximumCelsius)
+      !Number.isFinite(maximumCelsius) ||
+      (precipitationProbability !== undefined &&
+        precipitationProbability !== null &&
+        (typeof precipitationProbability !== 'number' ||
+          !Number.isFinite(precipitationProbability)))
     ) {
       return undefined;
     }
 
-    forecastDays.push({ date, weatherCode, minimumCelsius, maximumCelsius });
+    forecastDays.push({
+      date,
+      weatherCode,
+      minimumCelsius,
+      maximumCelsius,
+      ...(precipitationProbability !== undefined
+        ? { precipitationProbability: precipitationProbability ?? 0 }
+        : {}),
+    });
   }
 
   return forecastDays;
@@ -152,7 +169,7 @@ export async function searchCities(name: string): Promise<City[]> {
 }
 
 export async function getWeather(city: City): Promise<WeatherData> {
-  const url = `${FORECAST_URL}?latitude=${city.latitude}&longitude=${city.longitude}&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&temperature_unit=celsius&forecast_days=5`;
+  const url = `${FORECAST_URL}?latitude=${city.latitude}&longitude=${city.longitude}&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&temperature_unit=celsius&forecast_days=5`;
   const response = await fetchWithTimeout(url);
 
   if (!response.ok) {

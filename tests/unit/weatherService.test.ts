@@ -66,6 +66,12 @@ describe('searchCities', () => {
     await expect(searchCities('inválida')).resolves.toEqual([]);
   });
 
+  it('returns an empty list when results is absent', async () => {
+    fetchMock.mockResolvedValue(new Response(JSON.stringify({})));
+
+    await expect(searchCities('Cidade inexistente')).resolves.toEqual([]);
+  });
+
   it('throws WeatherServiceError when the response is not ok', async () => {
     fetchMock.mockResolvedValue(new Response(null, { status: 503 }));
 
@@ -130,6 +136,7 @@ describe('getWeather', () => {
       weather_code: [1, 2, 3, 61, 80],
       temperature_2m_min: [23, 22, 22, 21, 23],
       temperature_2m_max: [29, 30, 28, 27, 29],
+      precipitation_probability_max: [null, 20, 35, 80, 10],
     },
   };
 
@@ -139,7 +146,7 @@ describe('getWeather', () => {
     const weather = await getWeather(city);
 
     expect(fetchMock).toHaveBeenCalledWith(
-      'https://api.open-meteo.com/v1/forecast?latitude=-8.05&longitude=-34.88&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&temperature_unit=celsius&forecast_days=5',
+      'https://api.open-meteo.com/v1/forecast?latitude=-8.05&longitude=-34.88&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&temperature_unit=celsius&forecast_days=5',
       { signal: expect.any(AbortSignal) },
     );
     expect(weather).toEqual({
@@ -156,30 +163,35 @@ describe('getWeather', () => {
           weatherCode: 1,
           minimumCelsius: 23,
           maximumCelsius: 29,
+          precipitationProbability: 0,
         },
         {
           date: '2026-10-01',
           weatherCode: 2,
           minimumCelsius: 22,
           maximumCelsius: 30,
+          precipitationProbability: 20,
         },
         {
           date: '2026-10-02',
           weatherCode: 3,
           minimumCelsius: 22,
           maximumCelsius: 28,
+          precipitationProbability: 35,
         },
         {
           date: '2026-10-03',
           weatherCode: 61,
           minimumCelsius: 21,
           maximumCelsius: 27,
+          precipitationProbability: 80,
         },
         {
           date: '2026-10-04',
           weatherCode: 80,
           minimumCelsius: 23,
           maximumCelsius: 29,
+          precipitationProbability: 10,
         },
       ],
       unavailable: [],
